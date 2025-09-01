@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cleaned-up View</title>
+  <style>
+    /* Hide header */
+    h1, .site-header {
+      display: none !important;
+    }
+
+    /* Hide “Powered by” lines */
+    .card-content p {
+      display: none !important;
+    }
+
+    /* Hide any Telegram icons/buttons */
+    img[src*="telegram"], .telegram-icon, .telegram-button {
+      display: none !important;
+    }
+
+    /* Extra fallback */
+    .card-content > p {
+      color: transparent !important;
+    }
+  </style>
+</head>
+<body>
+  <iframe
+    src="https://rolexcoderz.site/"
+    style="width:100%; height:100vh; border:none;"
+  ></iframe>
+</body>
+</html>
