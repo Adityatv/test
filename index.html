@@ -1,34 +1,112 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Cleaned-up View</title>
-  <style>
-    /* Hide header */
-    h1, .site-header {
-      display: none !important;
-    }
-
-    /* Hide “Powered by” lines */
-    .card-content p {
-      display: none !important;
-    }
-
-    /* Hide any Telegram icons/buttons */
-    img[src*="telegram"], .telegram-icon, .telegram-button {
-      display: none !important;
-    }
-
-    /* Extra fallback */
-    .card-content > p {
-      color: transparent !important;
-    }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Embed: StudyStark</title>
+<style>
+  :root { --bg:#0b0f12; --fg:#e8f0fe; }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; background: var(--bg); color: var(--fg); }
+  .wrap { height: 100dvh; display: grid; place-items: center; }
+  .frame {
+    position: relative; width: 100%; height: 100%;
+  }
+  .frame iframe {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    border: 0; background: #111;
+  }
+  .topbar {
+    position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+    background: rgba(20,22,28,.7); backdrop-filter: blur(8px);
+    padding: 8px 14px; border-radius: 14px; font: 600 14px/1.2 system-ui, sans-serif;
+    z-index: 3;
+  }
+  .fallback {
+    position: absolute; inset: 0; display: grid; place-items: center; gap: 12px;
+    padding: 24px; text-align: center; background: #0b0f12; color: #cbd5e1;
+  }
+  .btn {
+    appearance: none; border: 0; border-radius: 12px; padding: 10px 14px; cursor: pointer;
+    background: #2563eb; color: white; font-weight: 600;
+  }
+  .splash {
+    position: fixed; inset: 0; display: grid; place-items: center;
+    background: #0b0f12; z-index: 4; transition: opacity .4s ease;
+  }
+  .splash.hide { opacity: 0; pointer-events: none; }
+  .shorticon {
+    position: fixed; top: 12px; right: 12px; z-index: 5;
+    width: 40px; height: 40px; border-radius: 10px; overflow: hidden; box-shadow: 0 6px 18px rgba(0,0,0,.35);
+  }
+  .shorticon img { width: 100%; height: 100%; object-fit: cover; }
+</style>
 </head>
 <body>
-  <iframe
-    src="https://studystark.site/"
-    style="width:100%; height:100vh; border:none;"
-  ></iframe>
+  <!-- Optional “short icon” badge -->
+  <a class="shorticon" href="https://studystark.site/" target="_blank" rel="noopener">
+    <img src="https://www.google.com/s2/favicons?sz=64&domain=studystark.site" alt="SS" />
+  </a>
+
+  <!-- Small glass topbar -->
+  <div class="topbar">StudyStark (embedded)</div>
+
+  <!-- One-time splash (auto-hides after 2.5s) -->
+  <div id="splash" class="splash">
+    <div>
+      <img src="https://www.google.com/s2/favicons?sz=128&domain=studystark.site" alt="" style="width:72px;height:72px;display:block;margin:0 auto 12px;border-radius:16px" />
+      <div style="font:700 16px system-ui;text-align:center;color:#e5e7eb">Loading StudyStark…</div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="frame">
+      <iframe id="ssFrame"
+        src="https://studystark.site/"
+        loading="eager"
+        allow="fullscreen; autoplay; clipboard-read; clipboard-write; encrypted-media"
+        referrerpolicy="no-referrer-when-downgrade"
+        allowfullscreen>
+      </iframe>
+
+      <!-- Graceful fallback if blocked by XFO/CSP -->
+      <div id="fallback" class="fallback" hidden>
+        <div>
+          <h2 style="margin:0 0 8px">Embedding is blocked by the site.</h2>
+          <p style="margin:0 0 14px">Click below to open StudyStark in a new tab.</p>
+          <a class="btn" href="https://studystark.site/" target="_blank" rel="noopener">Open StudyStark</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // Hide splash after a short delay (one-time per load)
+  const splash = document.getElementById('splash');
+  setTimeout(()=> splash.classList.add('hide'), 2500);
+
+  // Detect likely embed block:
+  // If the iframe fails to fire 'load' OR we can’t access its contentWindow due to cross-origin,
+  // we still assume it may have loaded. So we add a watchdog that toggles fallback
+  // if the frame never completes paint within a timeframe.
+  const iframe = document.getElementById('ssFrame');
+  const fallback = document.getElementById('fallback');
+  let loaded = false;
+
+  // If the site permits embedding, 'load' will usually fire.
+  iframe.addEventListener('load', () => { loaded = true; });
+
+  // After 4 seconds, if still not loaded, show fallback.
+  setTimeout(() => {
+    if (!loaded) fallback.hidden = false;
+  }, 4000);
+
+  // Make sure iframe fills viewport height on mobile address-bar changes
+  const setSize = () => {
+    document.querySelector('.wrap').style.height = window.innerHeight + 'px';
+  };
+  setSize();
+  addEventListener('resize', setSize);
+</script>
 </body>
 </html>
